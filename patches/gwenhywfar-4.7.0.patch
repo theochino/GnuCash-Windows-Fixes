@@ -1,0 +1,22 @@
+--- a/src/os/windows/inetsocket_p.h	2013-11-15 09:45:22.454215600 +0100
++++ b/src/os/windows/inetsocket_p.h	2013-11-15 09:45:40.269833200 +0100
+@@ -33,7 +33,6 @@
+ #ifndef GWEN_SOCKET_P_H
+ #define GWEN_SOCKET_P_H
+
+-#include <windows.h>
+ #include <winsock2.h>
+ #include <winerror.h>
+
+--- a/test/gwentest.c	2013-11-15 10:31:27.920761200 +0100
++++ b/test/gwentest.c	2013-11-15 10:32:16.737854900 +0100
+@@ -36,8 +36,7 @@
+ #include <gwenhywfar/smalltresor.h>
+ #include <gwenhywfar/sar.h>
+ #ifdef OS_WIN32
+-# include <windows.h>
+-# include <winsock.h>
++# include <winsock2.h>
+ # define sleep(x) Sleep(x*1000)
+ # define strcasecmp(a, b) strcmp(a, b)
+ #else

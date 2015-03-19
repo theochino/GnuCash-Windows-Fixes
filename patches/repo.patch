@@ -1,0 +1,1887 @@
+diff -r -c /c/soft/gnucash.git/configure.ac /c/softgood/gnucash.git/configure.ac
+*** /c/soft/gnucash.git/configure.ac	2014-01-08 13:02:50.127607400 +0000
+--- /c/softgood/gnucash.git/configure.ac	2014-01-08 12:40:03.493066800 +0000
+***************
+*** 337,342 ****
+--- 337,344 ----
+  REGEX_LIBS=""
+  
+  AC_MSG_CHECKING(operating system)
++ #NOUNDEF for use with mingw
++ NOUNDEF=""
+  case $host_os in
+    rhapsody* | darwin[1567].*)
+      AC_MSG_RESULT([darwin, but too old])
+***************
+*** 403,409 ****
+  
+      # Adjust CFLAGS and LDFLAGS on Windows
+      CFLAGS="${CFLAGS} -mms-bitfields"
+!     LDFLAGS="${LDFLAGS} -no-undefined -mwindows"
+      ;;
+  
+    *)
+--- 405,414 ----
+  
+      # Adjust CFLAGS and LDFLAGS on Windows
+      CFLAGS="${CFLAGS} -mms-bitfields"
+! #   NOUNDEF will be added to ldflags for the makefiles but not the configures
+! #   This fixes a problem with libtool and gcc 4.8
+!     NOUNDEF="-no-undefined"
+!     LDFLAGS="${LDFLAGS} -mwindows"
+      ;;
+  
+    *)
+***************
+*** 1246,1252 ****
+    if test "x$BUILDING_FROM_SCM" = "xyes"
+    then
+      # This code is from svn/svk/git/bzr, so enable error-on-warning
+!     error_on_warning_as_default="yes"
+    else
+      # This is from a tarball, so disable error-on-warning
+      error_on_warning_as_default="no"
+--- 1251,1257 ----
+    if test "x$BUILDING_FROM_SCM" = "xyes"
+    then
+      # This code is from svn/svk/git/bzr, so enable error-on-warning
+!     error_on_warning_as_default="no"
+    else
+      # This is from a tarball, so disable error-on-warning
+      error_on_warning_as_default="no"
+***************
+*** 1501,1507 ****
+  # A few files need extra actions at creation time
+  AC_CONFIG_FILES([src/gnc-test-env], [chmod u+x src/gnc-test-env])
+  AC_CONFIG_FILES([src/bin/overrides/gnucash-make-guids], [chmod u+x src/bin/overrides/gnucash-make-guids])
+! 
+  AC_OUTPUT
+  
+  
+--- 1506,1512 ----
+  # A few files need extra actions at creation time
+  AC_CONFIG_FILES([src/gnc-test-env], [chmod u+x src/gnc-test-env])
+  AC_CONFIG_FILES([src/bin/overrides/gnucash-make-guids], [chmod u+x src/bin/overrides/gnucash-make-guids])
+! LDFLAGS="${LDFLAGS} ${NOUNDEF}"
+  AC_OUTPUT
+  
+  
+diff -r -c /c/soft/gnucash.git/packaging/win32/defaults.sh /c/softgood/gnucash.git/packaging/win32/defaults.sh
+*** /c/soft/gnucash.git/packaging/win32/defaults.sh	2014-01-08 13:02:50.128607500 +0000
+--- /c/softgood/gnucash.git/packaging/win32/defaults.sh	2014-01-08 12:40:03.496567300 +0000
+***************
+*** 36,44 ****
+      set_default REL_REPOS_DIR ..
+  else
+      set_default GNUCASH_DIR $GLOBAL_DIR\\gnucash
+!     set_default REPOS_DIR $GNUCASH_DIR\\repos
+      # keep this pointing from BUILD_DIR to REPOS_DIR
+!     set_default REL_REPOS_DIR ..\\repos
+  
+      set_default REPOS_TYPE "git"
+      if [ "$REPOS_TYPE" = "git" ]; then
+--- 36,44 ----
+      set_default REL_REPOS_DIR ..
+  else
+      set_default GNUCASH_DIR $GLOBAL_DIR\\gnucash
+!     set_default REPOS_DIR $GLOBAL_DIR\\gnucash.git
+      # keep this pointing from BUILD_DIR to REPOS_DIR
+!     set_default REL_REPOS_DIR ..\\..\\gnucash.git
+  
+      set_default REPOS_TYPE "git"
+      if [ "$REPOS_TYPE" = "git" ]; then
+***************
+*** 68,75 ****
+  
+  # tools here means binaries runnable without other DLLs or data files
+  set_default TOOLS_DIR $GLOBAL_DIR\\tools
+! set_default WGET_DIR $TOOLS_DIR
+! #WGET=
+  
+  set_default SF_MIRROR "http://heanet.dl.sourceforge.net/sourceforge"
+  set_default GTK_MIRROR "ftp.gtk.org/pub"
+--- 68,78 ----
+  
+  # tools here means binaries runnable without other DLLs or data files
+  set_default TOOLS_DIR $GLOBAL_DIR\\tools
+! set_default MSYS_WGET_VERSION  "1.12-1"
+! set_default MSYS_M4_VERSION    "1.4.16-2"
+! set_default MSYS_PATCH_VERSION "2.6.1-1"
+! set_default MSYS_PERL_VERSION  "5.8.8-1"
+! set_default MSYS_UNZIP_VERSION "6.0-1"
+  
+  set_default SF_MIRROR "http://heanet.dl.sourceforge.net/sourceforge"
+  set_default GTK_MIRROR "ftp.gtk.org/pub"
+***************
+*** 77,102 ****
+  set_default GNOME_WIN32_URL "$GNOME_MIRROR/binaries/win32"
+  set_default GNOME_WIN32_DEPS_URL "$GNOME_WIN32_URL/dependencies"
+  
+- set_default DTK_URL "$SF_MIRROR/mingw/msysDTK-1.0.1.exe"
+- set_default M4_URL "$SF_MIRROR/mingw/m4-1.4.7-MSYS.tar.bz2"
+- 
+- set_default MINGW_RT_URL "$SF_MIRROR/mingw/mingwrt-3.18-mingw32-dev.tar.gz"
+- set_default MINGW_RT_DLL_URL "$SF_MIRROR/mingw/mingwrt-3.18-mingw32-dll.tar.gz"
+- set_default W32API_URL "$SF_MIRROR/mingw/w32api-3.15-1-mingw32-dev.tar.lzma"
+- set_default MINGW_MAKE_URL "$SF_MIRROR/mingw/mingw32-make-3.81-20080326-3.tar.gz"
+  set_default MINGW_DIR $GLOBAL_DIR\\mingw
+  
+! # The URLs for precompiled gcc/mingw binaries
+! set_default BINUTILS_URL "$SF_MIRROR/mingw/binutils-2.21-2-mingw32-bin.tar.lzma"
+! set_default GCC_CORE_URL "$SF_MIRROR/mingw/gcc-core-4.5.2-1-mingw32-bin.tar.lzma"
+! set_default GCC_CORE_DLL_URL "$SF_MIRROR/mingw/libgcc-4.5.2-1-mingw32-dll-1.tar.lzma"
+! set_default GCC_GPP_URL "$SF_MIRROR/mingw/gcc-c++-4.5.2-1-mingw32-bin.tar.lzma"
+! set_default GCC_GPP_DLL_URL "$SF_MIRROR/mingw/libstdc++-4.5.2-1-mingw32-dll-6.tar.lzma"
+! set_default GCC_GPP_PATCH "`pwd`/gcc-c++-4.4.0.patch"
+! set_default GCC_MPC_URL "$SF_MIRROR/mingw/libmpc-0.8.1-1-mingw32-dll-2.tar.lzma"
+! set_default GCC_MPFR_URL "$SF_MIRROR/mingw/libmpfr-2.4.1-1-mingw32-dll-1.tar.lzma"
+! set_default GCC_GMP_URL "$SF_MIRROR/mingw/libgmp-5.0.1-1-mingw32-dll-10.tar.lzma"
+! set_default GCC_PTHREADS_URL "$SF_MIRROR/mingw/libpthread-2.8.0-3-mingw32-dll-2.tar.lzma"
+  
+  if [ "$CROSS_COMPILE" != yes ]; then
+      # Use native toolchain
+--- 80,117 ----
+  set_default GNOME_WIN32_URL "$GNOME_MIRROR/binaries/win32"
+  set_default GNOME_WIN32_DEPS_URL "$GNOME_WIN32_URL/dependencies"
+  
+  set_default MINGW_DIR $GLOBAL_DIR\\mingw
+  
+! # Mingw toolchain
+! 
+! set_default MINGW_AUTOCONF_VERSION    "10-1"
+! set_default MINGW_AUTOCONF21_VERSION  "2.13-4"
+! set_default MINGW_AUTOCONF25_VERSION  "2.68-1"
+! set_default MINGW_AUTOMAKE111_VERSION "1.11.1-1"
+! set_default MINGW_AUTOMAKE110_VERSION "1.10.2-1"
+! set_default MINGW_AUTOMAKE19_VERSION  "1.9.6-3"
+! set_default MINGW_AUTOMAKE18_VERSION  "1.8.5-1"
+! set_default MINGW_AUTOMAKE17_VERSION  "1.7.9-1"
+! set_default MINGW_AUTOMAKE16_VERSION  "1.6.3-1"
+! set_default MINGW_AUTOMAKE15_VERSION  "1.5-1"
+! set_default MINGW_AUTOMAKE14_VERSION  "1.4p6-1"
+! set_default MINGW_AUTOMAKE_VERSION    "4-1"
+! set_default MINGW_BINUTILS_VERSION    "2.23.1-1"
+! set_default MINGW_BINUTILS_VERSION    "2.23.1-1"
+! set_default MINGW_GCC_VERSION         "4.8.1-3"
+! set_default MINGW_GETTEXT_VERSION     "0.18.1.1-2"
+! set_default MINGW_GMP_VERSION         "5.1.2-1"
+! set_default MINGW_LIBEXPAT_VERSION    "2.1.0-1"
+! set_default MINGW_LIBICONV_VERSION    "1.14-2"
+! set_default MINGW_LIBLTDL_VERSION     "2.4-1"
+! set_default MINGW_LIBTOOL_VERSION     "2.4-1"
+! set_default MINGW_MPC_VERSION         "1.0.1-2"
+! set_default MINGW_MPFR_VERSION        "3.1.2-2"
+! set_default MINGW_PEXPORTS_VERSION    "0.46"
+! set_default MINGW_PTHREAD_W32_VERSION "2.9.1-1"
+! set_default MINGW_RT_VERSION          "4.0.3-1"
+! set_default MINGW_ZLIB_VERSION        "1.2.8-1"
+! set_default MINGW_MAKE_VERSION        "3.82-5"
+  
+  if [ "$CROSS_COMPILE" != yes ]; then
+      # Use native toolchain
+***************
+*** 166,174 ****
+  #set_default CROSS_GCC_SRC_URL "$SF_MIRROR/mingw/gcc-4.5.0-1-mingw32-src.tar.lzma"
+  set_default CROSS_BINUTILS_SRC_URL "$SF_MIRROR/mingw/binutils-2.20.1-src.tar.gz"
+  
+- set_default UNZIP_URL "$SF_MIRROR/gnuwin32/unzip-5.51-1.exe"
+- set_default UNZIP_DIR $TOOLS_DIR
+- 
+  # do not use regex-gnu or regex-spencer v3.8.g3, see bug #382852
+  set_default REGEX_URL "$GNOME_WIN32_DEPS_URL/libgnurx-2.5.zip"
+  set_default REGEX_DEV_URL "$GNOME_WIN32_DEPS_URL/libgnurx-dev-2.5.zip"
+--- 181,186 ----
+***************
+*** 178,191 ****
+  set_default READLINE_LIB_URL "$SF_MIRROR/gnuwin32/readline-5.0-1-lib.zip"
+  set_default READLINE_DIR $GLOBAL_DIR\\readline
+  
+- set_default ACTIVE_PERL_URL "http://downloads.activestate.com/ActivePerl/releases/5.14.4.1405/ActivePerl-5.14.4.1405-MSWin32-x86-296746.zip"
+- set_default ACTIVE_PERL_DIR $GLOBAL_DIR\\active-perl
+- 
+- set_default AUTOCONF_URL "http://ftp.gnu.org/gnu/autoconf/autoconf-2.63.tar.bz2"
+- set_default AUTOMAKE_URL "http://ftp.gnu.org/gnu/automake/automake-1.11.1.tar.bz2"
+- set_default LIBTOOL_URL "http://ftp.gnu.org/gnu/libtool/libtool-2.2.6a.tar.gz"
+- set_default AUTOTOOLS_DIR $GLOBAL_DIR\\autotools
+- 
+  set_default GMP_URL "ftp://ftp.gnu.org/gnu/gmp/gmp-4.3.1.tar.bz2"
+  set_default GMP_ABI 32
+  set_default GMP_DIR $GLOBAL_DIR\\gmp
+--- 190,195 ----
+***************
+*** 195,206 ****
+  GUILE_VERSION="1.8.8"
+  set_default GUILE_URL "http://ftp.gnu.org/pub/gnu/guile/guile-${GUILE_VERSION}.tar.gz"
+  set_default GUILE_DIR $GLOBAL_DIR\\guile
+- set_default GUILE_PATCH `pwd`/guile-1.8.8.patch
+  
+  set_default OPENSSL_URL "http://www.openssl.org/source/openssl-0.9.8j.tar.gz"
+  set_default OPENSSL_DIR $GLOBAL_DIR\\openssl
+  
+! GNUTLS_VERSION="2.10.1"
+  set_default GNUTLS_URL "http://josefsson.org/gnutls4win/gnutls-${GNUTLS_VERSION}.zip"
+  set_default GNUTLS_DIR $GLOBAL_DIR\\gnutls
+  
+--- 199,209 ----
+  GUILE_VERSION="1.8.8"
+  set_default GUILE_URL "http://ftp.gnu.org/pub/gnu/guile/guile-${GUILE_VERSION}.tar.gz"
+  set_default GUILE_DIR $GLOBAL_DIR\\guile
+  
+  set_default OPENSSL_URL "http://www.openssl.org/source/openssl-0.9.8j.tar.gz"
+  set_default OPENSSL_DIR $GLOBAL_DIR\\openssl
+  
+! GNUTLS_VERSION="2.8.6"
+  set_default GNUTLS_URL "http://josefsson.org/gnutls4win/gnutls-${GNUTLS_VERSION}.zip"
+  set_default GNUTLS_DIR $GLOBAL_DIR\\gnutls
+  
+***************
+*** 337,346 ****
+  set_default OPENSP_DIR $GLOBAL_DIR\\opensp
+  set_default OPENSP_PATCH `pwd`/opensp-1.5.2.patch
+  
+! LIBOFX_VERSION="0.9.9"
+  set_default LIBOFX_URL "$SF_MIRROR/libofx/libofx-${LIBOFX_VERSION}.tar.gz"
+  set_default LIBOFX_DIR $GLOBAL_DIR\\libofx
+! #set_default LIBOFX_PATCH `pwd`/libofx-x.x.x.patch
+  
+  ## online banking: gwenhywfar+aqbanking
+  set_default AQBANKING5 yes
+--- 340,349 ----
+  set_default OPENSP_DIR $GLOBAL_DIR\\opensp
+  set_default OPENSP_PATCH `pwd`/opensp-1.5.2.patch
+  
+! LIBOFX_VERSION="0.9.8"
+  set_default LIBOFX_URL "$SF_MIRROR/libofx/libofx-${LIBOFX_VERSION}.tar.gz"
+  set_default LIBOFX_DIR $GLOBAL_DIR\\libofx
+! set_default LIBOFX_PATCH `pwd`/libofx-0.9.8.patch
+  
+  ## online banking: gwenhywfar+aqbanking
+  set_default AQBANKING5 yes
+***************
+*** 350,356 ****
+  
+  if [ "$AQBANKING5" = "yes" ]; then
+      GWENHYWFAR_VERSION="4.9.0beta"
+!     set_default GWENHYWFAR_URL "http://www2.aquamaniac.de/sites/download/download.php?package=01&release=72&file=01&dummy=gwenhywfar-${GWENHYWFAR_VERSION}.tar.gz"
+  else
+      GWENHYWFAR_VERSION="3.11.3"
+      set_default GWENHYWFAR_URL "http://www2.aquamaniac.de/sites/download/download.php?package=01&release=31&file=01&dummy=gwenhywfar-${GWENHYWFAR_VERSION}.tar.gz"
+--- 353,360 ----
+  
+  if [ "$AQBANKING5" = "yes" ]; then
+      GWENHYWFAR_VERSION="4.9.0beta"
+!     set_default GWENHYWFAR_URL "http://www2.aquamaniac.de/sites/download/download.php?package=01&release=70&file=01&dummy=gwenhywfar-${GWENHYWFAR_VERSION}.tar.gz"
+!     set_default GWENHYWFAR_PATCH `pwd`/gwenhywfar-4.7.0.patch
+  else
+      GWENHYWFAR_VERSION="3.11.3"
+      set_default GWENHYWFAR_URL "http://www2.aquamaniac.de/sites/download/download.php?package=01&release=31&file=01&dummy=gwenhywfar-${GWENHYWFAR_VERSION}.tar.gz"
+***************
+*** 358,370 ****
+  fi
+  set_default GWENHYWFAR_DIR $GLOBAL_DIR\\gwenhywfar
+  
+! KTOBLZCHECK_VERSION="1.44"
+  set_default KTOBLZCHECK_URL "$SF_MIRROR/ktoblzcheck/ktoblzcheck-${KTOBLZCHECK_VERSION}.tar.gz"
+  # ktoblzcheck is being installed into GWENHYWFAR_DIR
+  
+  if [ "$AQBANKING5" = "yes" ]; then
+!     AQBANKING_VERSION="5.2.0beta"
+!     set_default AQBANKING_URL "http://www2.aquamaniac.de/sites/download/download.php?package=03&release=104&file=01&dummy=aqbanking-${AQBANKING_VERSION}.tar.gz"
+      set_default AQBANKING_WITH_QT no
+  else
+      AQBANKING_VERSION="4.2.4"
+--- 362,374 ----
+  fi
+  set_default GWENHYWFAR_DIR $GLOBAL_DIR\\gwenhywfar
+  
+! KTOBLZCHECK_VERSION="1.43"
+  set_default KTOBLZCHECK_URL "$SF_MIRROR/ktoblzcheck/ktoblzcheck-${KTOBLZCHECK_VERSION}.tar.gz"
+  # ktoblzcheck is being installed into GWENHYWFAR_DIR
+  
+  if [ "$AQBANKING5" = "yes" ]; then
+!     AQBANKING_VERSION="5.1.0beta"
+!     set_default AQBANKING_URL "http://www2.aquamaniac.de/sites/download/download.php?package=03&release=103&file=01&dummy=aqbanking-${AQBANKING_VERSION}.tar.gz"
+      set_default AQBANKING_WITH_QT no
+  else
+      AQBANKING_VERSION="4.2.4"
+***************
+*** 384,399 ****
+  set_default LIBMYSQL_DEF `pwd`/libmysql.def
+  set_default PGSQL_LIB_URL "$SF_MIRROR/gnucash/pgsql-win32-2.tar.gz"
+  set_default PGSQL_DIR $GLOBAL_DIR\\pgsql
+! set_default LIBDBI_URL "$SF_MIRROR/libdbi/libdbi-0.8.3.tar.gz"
+  set_default LIBDBI_DIR $GLOBAL_DIR\\libdbi
+  set_default LIBDBI_PATCH `pwd`/libdbi-0.8.3.patch
+- set_default LIBDBI_PATCH2 `pwd`/libdbi-dbd_helper.c.patch
+  set_default LIBDBI_DRIVERS_URL "$SF_MIRROR/libdbi-drivers/libdbi-drivers-0.8.3-1.tar.gz"
+  set_default LIBDBI_DRIVERS_DIR $GLOBAL_DIR\\libdbi-drivers
+! set_default LIBDBI_DRIVERS_PATCH `pwd`/libdbi-drivers-dbd_sqlite3.c.patch
+! set_default LIBDBI_DRIVERS_PATCH2 `pwd`/libdbi-drivers-Makefile.in.patch
+! set_default LIBDBI_DRIVERS_PATCH3 `pwd`/libdbi-drivers-dbd_mysql.c.patch
+! set_default LIBDBI_DRIVERS_PATCH4 `pwd`/libdbi-drivers-dbd_pgsql.c.patch
+  
+  set_default CMAKE_URL "http://www.cmake.org/files/v2.8/cmake-2.8.0-win32-x86.zip"
+  set_default CMAKE_DIR $GLOBAL_DIR\\cmake
+--- 388,399 ----
+  set_default LIBMYSQL_DEF `pwd`/libmysql.def
+  set_default PGSQL_LIB_URL "$SF_MIRROR/gnucash/pgsql-win32-2.tar.gz"
+  set_default PGSQL_DIR $GLOBAL_DIR\\pgsql
+! set_default LIBDBI_URL "$SF_MIRROR/libdbi/libdbi-0.8.4.tar.gz"
+  set_default LIBDBI_DIR $GLOBAL_DIR\\libdbi
+  set_default LIBDBI_PATCH `pwd`/libdbi-0.8.3.patch
+  set_default LIBDBI_DRIVERS_URL "$SF_MIRROR/libdbi-drivers/libdbi-drivers-0.8.3-1.tar.gz"
+  set_default LIBDBI_DRIVERS_DIR $GLOBAL_DIR\\libdbi-drivers
+! set_default LIBDBI_DRIVERS_PATCH `pwd`/libdbi-drivers-errno.patch
+  
+  set_default CMAKE_URL "http://www.cmake.org/files/v2.8/cmake-2.8.0-win32-x86.zip"
+  set_default CMAKE_DIR $GLOBAL_DIR\\cmake
+***************
+*** 412,418 ****
+  set_default DOCS_DIR $GLOBAL_DIR\\gnucash-docs
+  set_default XSLTPROCFLAGS ""
+  
+! set_default ISOCODES_URL "http://pkg-isocodes.alioth.debian.org/downloads/iso-codes-3.34.tar.bz2"
+  set_default ISOCODES_DIR $GLOBAL_DIR\\isocodes
+  
+  ### Local Variables: ***
+--- 412,418 ----
+  set_default DOCS_DIR $GLOBAL_DIR\\gnucash-docs
+  set_default XSLTPROCFLAGS ""
+  
+! set_default ISOCODES_URL "http://pkg-isocodes.alioth.debian.org/downloads/iso-codes-3.49.tar.xz"
+  set_default ISOCODES_DIR $GLOBAL_DIR\\isocodes
+  
+  ### Local Variables: ***
+diff -r -c /c/soft/gnucash.git/packaging/win32/dist.sh /c/softgood/gnucash.git/packaging/win32/dist.sh
+*** /c/soft/gnucash.git/packaging/win32/dist.sh	2014-01-08 13:02:50.129607600 +0000
+--- /c/softgood/gnucash.git/packaging/win32/dist.sh	2014-01-08 12:40:03.516069800 +0000
+***************
+*** 26,32 ****
+  # steps
+  add_step dist_prepare
+  add_step dist_regex
+- add_step dist_autotools
+  add_step dist_guile
+  add_step dist_gnome
+  add_step dist_isocodes
+--- 26,31 ----
+***************
+*** 35,41 ****
+  add_step dist_goffice
+  add_step dist_libofx
+  add_step dist_gnutls
+- add_step dist_gmp
+  add_step dist_gwenhywfar
+  add_step dist_ktoblzcheck
+  add_step dist_aqbanking
+--- 34,39 ----
+diff -r -c /c/soft/gnucash.git/packaging/win32/dist-impl.sh /c/softgood/gnucash.git/packaging/win32/dist-impl.sh
+*** /c/soft/gnucash.git/packaging/win32/dist-impl.sh	2014-01-08 13:02:50.129107600 +0000
+--- /c/softgood/gnucash.git/packaging/win32/dist-impl.sh	2014-01-08 12:40:03.498567500 +0000
+***************
+*** 19,25 ****
+          fi
+      fi
+      _UNZIP_UDIR=`unix_path $UNZIP_DIR`
+-     _AUTOTOOLS_UDIR=`unix_path $AUTOTOOLS_DIR`
+      _GUILE_UDIR=`unix_path $GUILE_DIR`
+      _WIN_UDIR=`unix_path $WINDIR`
+      _EXETYPE_UDIR=`unix_path $EXETYPE_DIR`
+--- 19,24 ----
+***************
+*** 32,38 ****
+      _OPENSP_UDIR=`unix_path $OPENSP_DIR`
+      _LIBOFX_UDIR=`unix_path $LIBOFX_DIR`
+      _LIBXSLT_UDIR=`unix_path $LIBXSLT_DIR`
+-     _GMP_UDIR=`unix_path $GMP_DIR`
+      _GNUTLS_UDIR=`unix_path $GNUTLS_DIR`
+      _GWENHYWFAR_UDIR=`unix_path $GWENHYWFAR_DIR`
+      _AQBANKING_UDIR=`unix_path $AQBANKING_DIR`
+--- 31,36 ----
+***************
+*** 67,83 ****
+      cp -a ${_AQBANKING_UDIR}/share/locale ${DIST_UDIR}/share
+  }
+  
+- function dist_autotools() {
+-     setup Autotools
+-     mkdir -p $DIST_UDIR/bin
+-     cp -a $_AUTOTOOLS_UDIR/bin/*.dll $DIST_UDIR/bin
+- }
+- 
+- function dist_gmp() {
+-     setup gmp
+-     cp -a ${_GMP_UDIR}/bin/*.dll ${DIST_UDIR}/bin
+- }
+- 
+  function dist_gnome() {
+      setup Gnome platform
+      wget_unpacked $ATK_URL $DOWNLOAD_DIR $DIST_DIR
+--- 65,70 ----
+diff -r -c /c/soft/gnucash.git/packaging/win32/functions.sh /c/softgood/gnucash.git/packaging/win32/functions.sh
+*** /c/soft/gnucash.git/packaging/win32/functions.sh	2014-01-08 13:02:50.130107700 +0000
+--- /c/softgood/gnucash.git/packaging/win32/functions.sh	2014-01-08 12:40:03.518570100 +0000
+***************
+*** 89,94 ****
+--- 89,98 ----
+              tar -xjpf $LAST_FILE -C $_EXTRACT_UDIR
+              _PACK_DIR=$(tar -jtf $LAST_FILE 2>/dev/null | head -1)
+              ;;
++          *.tar.xz)
++              tar -xJpf $LAST_FILE -C $_EXTRACT_UDIR
++              _PACK_DIR=$(tar -Jtf $LAST_FILE 2>/dev/null | head -1)
++              ;;
+          *.tar.lzma)
+              lzma -dc $LAST_FILE |tar xpf - -C $_EXTRACT_UDIR
+              _PACK_DIR=$(lzma -dc $LAST_FILE |tar -tf - 2>/dev/null | head -1)
+***************
+*** 207,212 ****
+--- 211,217 ----
+      SUFFIX=$1
+      _MINGW_WFSDIR=$2
+      echo "configuring msys to use $_MINGW_WFSDIR."
++     touch /etc/fstab
+      cp /etc/fstab /etc/fstab.$SUFFIX
+      sed '\,/mingw$, d' /etc/fstab > tmp
+      echo "$_MINGW_WFSDIR /mingw" >> tmp
+***************
+*** 222,227 ****
+--- 227,298 ----
+      fi
+  }
+  
++ function mingw_smart_get () {
++     PACKAGE=$1
++     VERSION=$2
++ 
++     # Check if a sensible package name has been given
++     [ "$PACKAGE" ] || return
++ 
++     _MINGW_UDIR=`unix_path $MINGW_DIR`
++ 
++     # Check if a package has already been installed or not. This is
++     # a workaround for mingw-get's unfortunate refusal to upgrade a
++     # package when calling mingw-get install on an already installed one
++     # or mingw-get upgrade on a package that's not installed
++ 
++     # Note: awk is used below instead of grep, because the tests
++     #       can return without a result. Grep exists with a non-zero
++     #       exit value in that case, which will cause the script to
++     #       abort (due to set -e being set). Awk does not.
++ 
++     COMPONENTS="$(mingw-get show "$PACKAGE" | awk '/Components:/')"
++     if [ -n "$COMPONENTS" ]
++     then
++         # This package has subcomponents, we need to test
++         # the install status of the subcomponents instead
++         # Since we call mingw-get on the general package name
++         # all subcomponents normally get installed together
++         # so testing for only one subcomponent should be sufficient
++         # This assumption may lead to a situation where manulal
++         # intervention is needed in case of errors during mingw-get calls
++         # Let's hope that such errors are the exception
++         COMPONENT="${COMPONENTS#Components: }"
++         COMPONENT="${COMPONENT%%,*}"
++         SUBPACKAGE="$PACKAGE-$COMPONENT"
++     else
++         SUBPACKAGE="$PACKAGE"
++     fi
++ 
++     INSTVERSION="$(mingw-get show "$SUBPACKAGE" | awk '/Installed Version:/')"
++     INSTVERSION="${INSTVERSION#Installed Version:  }"
++     REPOVERSION="$(mingw-get show "$SUBPACKAGE" | awk '/Repository Version:/')"
++     REPOVERSION="${REPOVERSION#Repository Version: }"
++ 
++     # If a version string is given add add it to the package name
++     [ -n "$VERSION" ] && PACKAGE="${PACKAGE}=${VERSION}"
++ 
++     if [ -z "$INSTVERSION" ]
++     then
++         # Unknown package
++         die "Package $PACKAGE is unknown by mingw."
++     elif [ "$INSTVERSION" == "none" ]
++     then
++         # Package not yet installed
++         $_MINGW_UDIR/bin/mingw-get install ${PACKAGE}
++     elif [ -n "$VERSION" ] && [ -z "$(echo "$INSTVERSION" | awk "/$VERSION/")" ]
++     then
++         # Requested version differs from installed version
++         $_MINGW_UDIR/bin/mingw-get upgrade ${PACKAGE}
++     elif [ -z "$VERSION" ] && [ "$INSTVERSION" != "$REPOVERSION" ]
++     then
++         # No version requested, but installed version differs from version in repo
++         $_MINGW_UDIR/bin/mingw-get upgrade ${PACKAGE}
++     else
++         echo "Package $PACKAGE is up to date"
++     fi
++ }
++ 
+  ### Local Variables: ***
+  ### mode: shell-script ***
+  ### sh-basic-offset: 4 ***
+diff -r -c /c/soft/gnucash.git/packaging/win32/install.sh /c/softgood/gnucash.git/packaging/win32/install.sh
+*** /c/soft/gnucash.git/packaging/win32/install.sh	2014-01-08 13:02:50.132608000 +0000
+--- /c/softgood/gnucash.git/packaging/win32/install.sh	2014-01-08 12:40:09.681852700 +0000
+***************
+*** 30,39 ****
+  
+  # variables
+  register_env_var ACLOCAL_FLAGS " "
+- register_env_var AUTOTOOLS_CPPFLAGS " "
+- register_env_var AUTOTOOLS_LDFLAGS " "
+- register_env_var GMP_CPPFLAGS " "
+- register_env_var GMP_LDFLAGS " "
+  register_env_var GNOME_CPPFLAGS " "
+  register_env_var GNOME_LDFLAGS " "
+  register_env_var GNUTLS_CPPFLAGS " "
+--- 30,35 ----
+***************
+*** 65,83 ****
+  # * commented out glade, as it is not needed to run gnucash
+  add_step inst_prepare
+  if [ "$CROSS_COMPILE" != "yes" ]; then
+!  add_step inst_wget
+!  add_step inst_dtk
+!  add_step inst_unzip
+  fi
+  add_step inst_mingw
+  add_step inst_regex
+  add_step inst_readline
+- if [ "$CROSS_COMPILE" != "yes" ]; then
+-  add_step inst_active_perl
+-  add_step inst_mingwutils
+- fi
+- add_step inst_autotools
+- add_step inst_gmp
+  add_step inst_exetype
+  add_step inst_gnome
+  add_step inst_guile
+--- 61,71 ----
+  # * commented out glade, as it is not needed to run gnucash
+  add_step inst_prepare
+  if [ "$CROSS_COMPILE" != "yes" ]; then
+!  add_step inst_msys
+  fi
+  add_step inst_mingw
+  add_step inst_regex
+  add_step inst_readline
+  add_step inst_exetype
+  add_step inst_gnome
+  add_step inst_guile
+diff -r -c /c/soft/gnucash.git/packaging/win32/libdbi-0.8.3.patch /c/softgood/gnucash.git/packaging/win32/libdbi-0.8.3.patch
+*** /c/soft/gnucash.git/packaging/win32/libdbi-0.8.3.patch	2014-01-08 13:02:50.133108100 +0000
+--- /c/softgood/gnucash.git/packaging/win32/libdbi-0.8.3.patch	2014-01-08 12:40:09.684353000 +0000
+***************
+*** 1,14 ****
+- diff -Nur libdbi-0.8.3-old/configure.in libdbi-0.8.3/configure.in
+- --- libdbi-0.8.3-old/configure.in	2008-02-06 17:03:27.000000000 +0100
+- +++ libdbi-0.8.3/configure.in	2008-10-05 15:56:55.677983028 +0200
+- @@ -26,6 +26,7 @@
+-  AC_PROG_CPP
+-  AC_PROG_LD
+-  AC_PROG_INSTALL
+- +AC_LIBTOOL_WIN32_DLL
+-  AC_PROG_LIBTOOL
+-  AC_SUBST(LIBTOOL)
+-  dnl ====================================
+  diff -Nur libdbi-0.8.3-old/include/dbi/dbd.h libdbi-0.8.3/include/dbi/dbd.h
+  --- libdbi-0.8.3-old/include/dbi/dbd.h	2005-08-15 21:18:18.000000000 +0200
+  +++ libdbi-0.8.3/include/dbi/dbd.h	2008-10-05 15:57:24.889982668 +0200
+--- 1,3 ----
+***************
+*** 30,32 ****
+--- 19,61 ----
+   dbi_result_t *_dbd_result_create_from_stringarray(dbi_conn_t *conn, unsigned long long numrows_matched, const char **stringarray);
+   void _dbd_register_driver_cap(dbi_driver_t *driver, const char *capname, int value);
+   void _dbd_register_conn_cap(dbi_conn_t *conn, const char *capname, int value);
++ --- libdbi-0.8.3/src/dbd_helper.c.orig  Sun Sep 13 16:34:39 2009
++ +++ libdbi-0.8.3/src/dbd_helper.c       Sun Sep 13 16:35:02 2009
++ @@ -145,7 +145,7 @@
++         return len;
++  }
++ 
++ -void _dbd_internal_error_handler(dbi_conn_t *conn, const char *errmsg, const int errno) {
++ +void _dbd_internal_error_handler(dbi_conn_t *conn, const char *errmsg, const int err_no) {
++    int my_errno = DBI_ERROR_NONE;
++    int errstatus;
++    char *my_errmsg = NULL;
++ @@ -154,7 +154,7 @@
++      free(conn->error_message);
++    }
++ 
++ -  if (errno == DBI_ERROR_DBD) {
++ +  if (err_no == DBI_ERROR_DBD) {
++      /* translate into a client-library specific error number */
++      errstatus = conn->driver->functions->geterror(conn, &my_errno, &my_errmsg);
++ 
++ @@ -171,8 +171,8 @@
++      }
++    }
++    else if (errmsg) {
++ -    conn->error_flag = errno; /* legacy code may rely on this */
++ -    conn->error_number = errno;
++ +    conn->error_flag = err_no; /* legacy code may rely on this */
++ +    conn->error_number = err_no;
++      conn->error_message = strdup(errmsg);
++ 
++      if (conn->error_handler != NULL) {
++ @@ -181,7 +181,7 @@
++    }
++    else {
++      /* pass internal errors to the internal libdbi handler */
++ -    _error_handler(conn, errno);
++ +    _error_handler(conn, err_no);
++    }
++ 
++  }
+diff -r -c /c/soft/gnucash.git/src/gnome/gnc-split-reg.h /c/softgood/gnucash.git/src/gnome/gnc-split-reg.h
+*** /c/soft/gnucash.git/src/gnome/gnc-split-reg.h	2014-01-08 13:02:50.134108200 +0000
+--- /c/softgood/gnucash.git/src/gnome/gnc-split-reg.h	2014-01-08 12:40:09.685853200 +0000
+***************
+*** 113,119 ****
+      void (*help_changed_cb) ( GNCSplitReg *w, gpointer user_data );
+      void (*include_date_cb) ( GNCSplitReg *w, time64 date, gpointer user_data );
+  };
+! 
+  typedef enum
+  {
+      ENTER,
+--- 113,121 ----
+      void (*help_changed_cb) ( GNCSplitReg *w, gpointer user_data );
+      void (*include_date_cb) ( GNCSplitReg *w, time64 date, gpointer user_data );
+  };
+! /* Something somewhere sets these to silly values and causes problems */
+! #undef DELETE
+! #undef DUPLICATE
+  typedef enum
+  {
+      ENTER,
+diff -r -c /c/soft/gnucash.git/packaging/win32/install-impl.sh /c/softgood/gnucash.git/packaging/win32/install-impl.sh
+*** /c/soft/gnucash.git/packaging/win32/install-impl.sh	Thu Jan  9 19:17:39 2014
+--- /c/softgood/gnucash.git/packaging/win32/install-impl.sh	Thu Jan  9 18:55:20 2014
+***************
+*** 50,78 ****
+    _PID=$$
+  }
+  
+! function check_m4_version_ok() {
+!     v=`m4 --version | grep -e '[0-9]*\.[0-9]*\.[0-9]*' | sed -e 's/[mM]4//g' -e 's/[^\.0-9]//g'`
+!     if [ "$v" = "1.4.7" -o "$v" = "1.4.11" -o "$v" = "1.4.13" ];
+! 	then
+! 	    return 1
+!     else
+! 	    return 0
+!     fi
+! }
+  
+! function inst_wget() {
+!     setup Wget
+!     _WGET_UDIR=`unix_path $WGET_DIR`
+!     add_to_env $_WGET_UDIR/bin PATH
+!     if quiet $_WGET_UDIR/wget --version || quiet wget --version
+!     then
+!         echo "already installed in $_WGET_UDIR/bin.  skipping."
+!     else
+!         mkdir -p $_WGET_UDIR/bin
+!         tar -xjpf $DOWNLOAD_UDIR/wget*.tar.bz2 -C $_WGET_UDIR
+!         cp $_WGET_UDIR/*/*/wget.exe $_WGET_UDIR/bin
+!         quiet wget --version || die "wget unavailable"
+!     fi
+  }
+  
+  function inst_cmake() {
+--- 50,87 ----
+    _PID=$$
+  }
+  
+! function inst_msys() {
+!     setup MSys
+!     _MINGW_UDIR=`unix_path $MINGW_DIR`
+!     _MSYS_UDIR=`unix_path $MSYS_DIR`
+!     add_to_env $_MINGW_UDIR/bin PATH
+!     add_to_env $_MSYS_UDIR/bin PATH
+  
+!     # The bootstrap script already set some of this up
+!     # It will be set up again here to catch version updates of any of these packages
+!     #mingw-get update
+!     mingw-get upgrade mingw-get
+! 
+!     # Note: msys-base can't be upgraded by this script
+!     #       it potentially will want to upgrade bash
+!     #       which will fail because bash is running
+!     #       If you want to install a newer version
+!     #       of msys-base anyway, then
+!     #       - open a traditional windows command shell
+!     #       - cd into your MINGW's bin directory
+!     #         (Default: c:\soft\mingw\bin)
+!     #       - run mingw-get upgrade msys-base
+!     #       - or mingw-get upgrade msys-base=<new-version>
+!     #mingw_smart_get upgrade msys-base
+!     mingw_smart_get msys-wget ${MSYS_WGET_VERSION}
+!     mingw_smart_get msys-m4 ${MSYS_M4_VERSION}
+!     mingw_smart_get msys-patch ${MSYS_PATCH_VERSION}
+!     mingw_smart_get msys-perl ${MSYS_PERL_VERSION}
+!     mingw_smart_get msys-unzip ${MSYS_UNZIP_VERSION}
+! 
+!     quiet perl --help || die "perl not installed correctly"
+!     quiet wget --version || die "wget unavailable"
+!     quiet unzip --help || die "unzip unavailable"
+  }
+  
+  function inst_cmake() {
+***************
+*** 87,124 ****
+  
+          assert_one_dir ${_CMAKE_UDIR}/cmake-2*
+          mv ${_CMAKE_UDIR}/cmake-2*/* ${_CMAKE_UDIR}
+!         rm -rf ${_CMAKE_UDIR}/cmake-2*
+  
+          [ -f ${_CMAKE_UDIR}/bin/cmake.exe ] || die "cmake not installed correctly"
+      fi
+  }
+  
+- function inst_dtk() {
+-     setup MSYS DTK
+-     _MSYS_UDIR=`unix_path $MSYS_DIR`
+-     if quiet ${_MSYS_UDIR}/bin/perl --help && [ check_m4_version_ok ]
+-     then
+-     echo "msys dtk already installed in ${_MSYS_UDIR}.  skipping."
+-     else
+-         smart_wget $DTK_URL $DOWNLOAD_DIR
+-         $LAST_FILE //SP- //SILENT //DIR="$MSYS_DIR"
+-         for file in \
+-             /bin/{aclocal*,auto*,ifnames,libtool*,guile*} \
+-             /share/{aclocal,aclocal-1.7,autoconf,autogen,automake-1.7,guile,libtool}
+-         do
+- 			[ -f $file ] || continue
+-             [ "${file##*.bak}" ] || continue
+-             _dst_file=$file.bak
+-             while [ -e $_dst_file ]; do _dst_file=$_dst_file.bak; done
+-             mv $file $_dst_file
+-         done
+-         wget_unpacked $M4_URL $DOWNLOAD_DIR $TMP_DIR
+-         mv $TMP_UDIR/usr/bin/m4.exe /bin
+-         quiet ${_MSYS_UDIR}/bin/perl --help &&
+-         [ check_m4_version_ok ] || die "msys dtk not installed correctly"
+-     fi
+- }
+- 
+  function inst_exetype() {
+      setup exetype
+      _EXETYPE_UDIR=`unix_path $EXETYPE_DIR`
+--- 96,107 ----
+  
+          assert_one_dir ${_CMAKE_UDIR}/cmake-2*
+          mv ${_CMAKE_UDIR}/cmake-2*/* ${_CMAKE_UDIR}
+!         # rm -rf ${_CMAKE_UDIR}/cmake-2*
+  
+          [ -f ${_CMAKE_UDIR}/bin/cmake.exe ] || die "cmake not installed correctly"
+      fi
+  }
+  
+  function inst_exetype() {
+      setup exetype
+      _EXETYPE_UDIR=`unix_path $EXETYPE_DIR`
+***************
+*** 138,144 ****
+      if [ "$CROSS_COMPILE" == "yes" ]; then
+          ${CC} --version && ${LD} --help
+      else
+!         g++ --version && mingw32-make --help
+      fi
+  }
+  
+--- 121,128 ----
+      if [ "$CROSS_COMPILE" == "yes" ]; then
+          ${CC} --version && ${LD} --help
+      else
+! #        g++ --version && mingw32-make --help
+!         g++ --version
+      fi
+  }
+  
+***************
+*** 150,202 ****
+      configure_msys "$_PID" "$_MINGW_WFSDIR"
+      add_to_env $_MINGW_UDIR/bin PATH
+  
+!     if quiet test_for_mingw
+!     then
+!         echo "mingw already installed in $_MINGW_UDIR.  skipping."
+!     else
+!         mkdir -p $_MINGW_UDIR
+  
+!         # Download the precompiled packages in any case to get their DLLs
+!         wget_unpacked $BINUTILS_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_CORE_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_CORE_DLL_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_GPP_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_GPP_DLL_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_GMP_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_MPC_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_MPFR_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $GCC_PTHREADS_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $MINGW_RT_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $MINGW_RT_DLL_URL $DOWNLOAD_DIR $MINGW_DIR
+!         wget_unpacked $W32API_URL $DOWNLOAD_DIR $MINGW_DIR
+! 
+!         if [ "$CROSS_COMPILE" != "yes" ]; then
+!             wget_unpacked $MINGW_MAKE_URL $DOWNLOAD_DIR $MINGW_DIR
+!             (echo "y"; echo "y"; echo "$_MINGW_WFSDIR"; echo "y") | sh pi.sh
+!         else
+!             ./create_cross_mingw.sh
+!         fi
+!         quiet test_for_mingw || die "mingw not installed correctly"
+!     fi
+  
+      if [ "$CROSS_COMPILE" != "yes" ]; then
+!         # Some preparation steps, only for native (non-cross-compile)
+!         cp ${_MINGW_UDIR}/bin/libpthread-2.dll ${_MINGW_UDIR}/bin/pthreadGC2.dll
+!     fi
+! }
+! 
+! function inst_mingwutils() {
+!     setup MinGW-Utils
+!     _MINGW_UTILS_UDIR=`unix_path $MINGW_UTILS_DIR`
+!     add_to_env $_MINGW_UTILS_UDIR/bin PATH
+!     if quiet which pexports && quiet which reimp
+!     then
+!         echo "mingw-utils already installed in $_MINGW_UTILS_UDIR.  skipping."
+!     else
+!         wget_unpacked $MINGW_UTILS_URL $DOWNLOAD_DIR $MINGW_UTILS_DIR
+          quiet which pexports || die "mingw-utils not installed correctly (pexports)"
+!         quiet which reimp || die "mingw-utils not installed correctly (reimp)"
+!     fi
+  }
+  
+  function inst_svn() {
+--- 134,215 ----
+      configure_msys "$_PID" "$_MINGW_WFSDIR"
+      add_to_env $_MINGW_UDIR/bin PATH
+  
+!     mkdir -p $_MINGW_UDIR
+  
+!     # Download the precompiled packages in any case to get their DLLs
+!     # NOTE: installation order matters here - care should be taken
+!     #       that each call to mingw_smart_get really installs one package
+!     #       or group of packages that embody one entity such as gcc's subpackages)
+!     #       This is due to the very limited package management features
+!     #       of mingw-get (which is called by mingw_smart_get.
+!     #       If multiple packages are automatically installed in
+!     #       one command, it becomes virtually impossible to guarantee
+!     #       the predetermined versions of all packages will be installed
+!     #       (instead of the most recent one)
+! 
+!     # Win32 runtime and api
+!     mingw_smart_get mingw32-mingwrt-dev ${MINGW_RT_VERSION}
+!     mingw_smart_get mingw32-w32api-dev ${MINGW_RT_VERSION}
+!     # GCC/G++ dependencies
+!     mingw_smart_get mingw32-libgmp-dll ${MINGW_GMP_VERSION}
+!     mingw_smart_get mingw32-libmpfr-dll ${MINGW_MPFR_VERSION}
+!     mingw_smart_get mingw32-libmpc-dll ${MINGW_MPC_VERSION}
+!     mingw_smart_get mingw32-libpthread-dll ${MINGW_PTHREAD_W32_VERSION}
+!     mingw_smart_get mingw32-libz-dll ${MINGW_ZLIB_VERSION}
+!     mingw_smart_get mingw32-libgcc-dll ${MINGW_GCC_VERSION}
+!     # Gettext and friends - should come before binutils
+!     mingw_smart_get mingw32-libiconv-dev ${MINGW_LIBICONV_VERSION}
+!     mingw_smart_get mingw32-libexpat-dev ${MINGW_LIBEXPAT_VERSION}
+!     mingw_smart_get mingw32-gettext-dev ${MINGW_GETTEXT_VERSION}
+!     # Binutils and GCC/G++ binaries
+!     mingw_smart_get mingw32-binutils-bin ${MINGW_BINUTILS_VERSION}
+!     mingw_smart_get mingw32-gcc ${MINGW_GCC_VERSION}
+!     mingw_smart_get mingw32-gcc-g++ ${MINGW_GCC_VERSION}
+!     # Autotools
+!     mingw_smart_get mingw32-autoconf2.1 ${MINGW_AUTOCONF21_VERSION}
+!     mingw_smart_get mingw32-autoconf2.5 ${MINGW_AUTOCONF25_VERSION}
+!     mingw_smart_get mingw32-autoconf ${MINGW_AUTOCONF_VERSION}
+!     mingw_smart_get mingw32-automake1.11 ${MINGW_AUTOMAKE111_VERSION}
+!     mingw_smart_get mingw32-automake1.10 ${MINGW_AUTOMAKE110_VERSION}
+!     mingw_smart_get mingw32-automake1.9 ${MINGW_AUTOMAKE19_VERSION}
+!     mingw_smart_get mingw32-automake1.8 ${MINGW_AUTOMAKE18_VERSION}
+!     mingw_smart_get mingw32-automake1.7 ${MINGW_AUTOMAKE17_VERSION}
+!     mingw_smart_get mingw32-automake1.6 ${MINGW_AUTOMAKE16_VERSION}
+!     mingw_smart_get mingw32-automake1.5 ${MINGW_AUTOMAKE15_VERSION}
+!     mingw_smart_get mingw32-automake1.4 ${MINGW_AUTOMAKE14_VERSION}
+!     mingw_smart_get mingw32-automake ${MINGW_AUTOMAKE_VERSION}
+!     mingw_smart_get mingw32-libtool ${MINGW_LIBTOOL_VERSION}
+!     mingw_smart_get mingw32-libltdl ${MINGW_LIBLTDL_VERSION}
+!     mingw_smart_get mingw32-libiconv-bin ${MINGW_LIBICONV_VERSION}
+!     # Build dependencies for gnucash and other self-built libraries
+!     mingw_smart_get mingw32-gmp-dev ${MINGW_GMP_VERSION}
+!     mingw_smart_get mingw32-pthreads-w32-dev ${MINGW_PTHREAD_W32_VERSION}
+  
+      if [ "$CROSS_COMPILE" != "yes" ]; then
+!         mingw_smart_get mingw32-pexports ${MINGW_PEXPORTS_VERSION}
+!         # Some additional steps, only for native (non-cross-compile)
+!         #cp ${_MINGW_UDIR}/bin/libpthread-2.dll ${_MINGW_UDIR}/bin/pthreadGC2.dll
+!         echo "Skipping lpthread copying for now, let's see if this is still needed..."
+!         #mingw_smart_get mingw32-make ${MINGW_MAKE_VERSION}
+!         echo "Skipping mingw32-make installation for now, let's see if this is still needed..."
+          quiet which pexports || die "mingw-utils not installed correctly (pexports)"
+!         # FIXME which library uses reimp ?
+!         # quiet which reimp || die "mingw-utils not installed correctly (reimp)"
+!         # Hack to make Gnome's pkg-config happy (without having to rebuild it)
+!         cp "${_MINGW_UDIR}"/bin/libintl*.dll "${_MINGW_UDIR}/bin/intl.dll"
+!     else
+!         ./create_cross_mingw.sh
+!     fi
+! 
+!     # Test if everything worked out correctly
+!     quiet test_for_mingw || die "mingw not installed correctly"
+!     quiet autoconf --help || die "autoconf not installed correctly"
+!     quiet automake --help || die "automake not installed correctly"
+!     quiet libtoolize --help && \
+!     quiet ${LD} -lltdl -o $TMP_UDIR/ofile || die "libtool/libtoolize not installed correctly"
+! 
+!     # Still needed ?
+!     #[ ! -d $_AUTOTOOLS_UDIR/share/aclocal ] || add_to_env "-I $_AUTOTOOLS_UDIR/share/aclocal" ACLOCAL_FLAGS
+  }
+  
+  function inst_svn() {
+***************
+*** 237,256 ****
+      fi
+  }
+  
+- function inst_unzip() {
+-     setup Unzip
+-     _UNZIP_UDIR=`unix_path $UNZIP_DIR`
+-     add_to_env $_UNZIP_UDIR/bin PATH
+-     if quiet $_UNZIP_UDIR/bin/unzip --help || quiet unzip --help
+-     then
+-         echo "unzip already installed in $_UNZIP_UDIR.  skipping."
+-     else
+-         smart_wget $UNZIP_URL $DOWNLOAD_DIR
+-         $LAST_FILE //SP- //SILENT //DIR="$UNZIP_DIR"
+-         quiet unzip --help || die "unzip unavailable"
+-     fi
+- }
+- 
+  function inst_git() {
+      setup Git
+      _GIT_UDIR=`unix_path $GIT_DIR`
+--- 250,255 ----
+***************
+*** 275,303 ****
+      [ -n "$GIT_CMD" ] && export GIT_CMD
+  }
+  
+- # Functions before this point are basic build infrastructure functions or else they get pieces needed to build
+- # gnucash but which are not part of the final product.  Functions after this point are for components of the
+- # final build.  Please leave in alphabetical order so they are easier to find.
+- 
+- function inst_active_perl() {
+-     setup ActivePerl \(intltool\)
+-     _ACTIVE_PERL_UDIR=`unix_path $ACTIVE_PERL_DIR`
+-     _ACTIVE_PERL_BASE_DIR=$_ACTIVE_PERL_UDIR/ActivePerl/Perl
+-     _ACTIVE_PERL_WFSDIR=`win_fs_path $ACTIVE_PERL_DIR`
+-     set_env_or_die $_ACTIVE_PERL_WFSDIR/ActivePerl/Perl/bin/perl INTLTOOL_PERL
+-     if quiet $INTLTOOL_PERL --help
+-     then
+-         echo "ActivePerl already installed IN $_ACTIVE_PERL_UDIR.  skipping."
+-     else
+-         wget_unpacked $ACTIVE_PERL_URL $DOWNLOAD_DIR $ACTIVE_PERL_DIR
+-         qpushd $_ACTIVE_PERL_UDIR
+-             assert_one_dir ActivePerl-*
+-             mv ActivePerl-* ActivePerl
+-         qpopd
+-         quiet $INTLTOOL_PERL --help || die "ActivePerl not installed correctly"
+-     fi
+- }
+- 
+  function inst_aqbanking() {
+      setup AqBanking
+      _AQBANKING_UDIR=`unix_path ${AQBANKING_DIR}`
+--- 274,279 ----
+***************
+*** 336,343 ****
+                      --with-xmlmerge=${XMLMERGE} \
+                      --with-frontends="cbanking qbanking" \
+                      --with-backends="${_AQ_BACKENDS}" \
+!                     CPPFLAGS="${_AQ_CPPFLAGS} ${GMP_CPPFLAGS}" \
+!                     LDFLAGS="${_AQ_LDFLAGS} ${GMP_LDFLAGS}" \
+                      qt3_libs="-L${_QTDIR}/lib -L${_QTDIR}/bin -lQtCore4 -lQtGui4 -lQt3Support4" \
+                      qt3_includes="-I${_QTDIR}/include -I${_QTDIR}/include/Qt -I${_QTDIR}/include/QtCore -I${_QTDIR}/include/QtGui -I${_QTDIR}/include/Qt3Support" \
+                      --prefix=${_AQBANKING_UDIR}
+--- 312,319 ----
+                      --with-xmlmerge=${XMLMERGE} \
+                      --with-frontends="cbanking qbanking" \
+                      --with-backends="${_AQ_BACKENDS}" \
+!                     CPPFLAGS="${_AQ_CPPFLAGS}" \
+!                     LDFLAGS="${_AQ_LDFLAGS}" \
+                      qt3_libs="-L${_QTDIR}/lib -L${_QTDIR}/bin -lQtCore4 -lQtGui4 -lQt3Support4" \
+                      qt3_includes="-I${_QTDIR}/include -I${_QTDIR}/include/Qt -I${_QTDIR}/include/QtCore -I${_QTDIR}/include/QtGui -I${_QTDIR}/include/Qt3Support" \
+                      --prefix=${_AQBANKING_UDIR}
+***************
+*** 355,362 ****
+                      --with-xmlmerge=${XMLMERGE} \
+                      --with-frontends="cbanking" \
+                      --with-backends="${_AQ_BACKENDS}" \
+!                     CPPFLAGS="${_AQ_CPPFLAGS} ${GMP_CPPFLAGS}" \
+!                     LDFLAGS="${_AQ_LDFLAGS} ${GMP_LDFLAGS}" \
+                      --prefix=${_AQBANKING_UDIR}
+              fi
+              make
+--- 331,338 ----
+                      --with-xmlmerge=${XMLMERGE} \
+                      --with-frontends="cbanking" \
+                      --with-backends="${_AQ_BACKENDS}" \
+!                     CPPFLAGS="${_AQ_CPPFLAGS}" \
+!                     LDFLAGS="${_AQ_LDFLAGS}" \
+                      --prefix=${_AQBANKING_UDIR}
+              fi
+              make
+***************
+*** 373,433 ****
+              fi
+          qpopd
+          ${PKG_CONFIG} --exists aqbanking || die "AqBanking not installed correctly"
+!         rm -rf ${TMP_UDIR}/aqbanking-*
+      fi
+      [ ! -d $_AQBANKING_UDIR/share/aclocal ] || add_to_env "-I $_AQBANKING_UDIR/share/aclocal" ACLOCAL_FLAGS
+  }
+  
+- function inst_autotools() {
+-     setup Autotools
+-     _AUTOTOOLS_UDIR=`unix_path $AUTOTOOLS_DIR`
+-     add_to_env $_AUTOTOOLS_UDIR/bin PATH
+-     add_to_env -I$_AUTOTOOLS_UDIR/include AUTOTOOLS_CPPFLAGS
+-     add_to_env -L$_AUTOTOOLS_UDIR/lib AUTOTOOLS_LDFLAGS
+-     if quiet autoconf --help && quiet automake --help
+-     then
+-         echo "autoconf/automake already installed in $_AUTOTOOLS_UDIR.  skipping."
+-     else
+-         wget_unpacked $AUTOCONF_URL $DOWNLOAD_DIR $TMP_DIR
+-         wget_unpacked $AUTOMAKE_URL $DOWNLOAD_DIR $TMP_DIR
+-         assert_one_dir $TMP_UDIR/autoconf-*
+-         qpushd $TMP_UDIR/autoconf-*
+-             echo "building autoconf..."
+-             ./configure --prefix=$_AUTOTOOLS_UDIR
+-             make
+-             make install
+-         qpopd
+-         assert_one_dir $TMP_UDIR/automake-*
+-         qpushd $TMP_UDIR/automake-*
+-             echo "building automake..."
+-             ./configure --prefix=$_AUTOTOOLS_UDIR
+-             make
+-             make install
+-         qpopd
+-         quiet autoconf --help || die "autoconf not installed correctly"
+-         quiet automake --help || die "automake not installed correctly"
+-         rm -rf ${TMP_UDIR}/autoconf-* ${TMP_UDIR}/automake-*
+-     fi
+-     if quiet libtoolize --help && \
+-        quiet ${LD} $AUTOTOOLS_LDFLAGS -lltdl -o $TMP_UDIR/ofile
+-     then
+-         echo "libtool/libtoolize already installed.  skipping."
+-     else
+-         wget_unpacked $LIBTOOL_URL $DOWNLOAD_DIR $TMP_DIR
+-         assert_one_dir $TMP_UDIR/libtool-*
+-         qpushd $TMP_UDIR/libtool-*
+-             echo "building libtool..."
+-             ./configure ${HOST_XCOMPILE} --prefix=$_AUTOTOOLS_UDIR --disable-static
+-             make
+-             make install
+-         qpopd
+-         quiet libtoolize --help && \
+-         quiet ${LD} $AUTOTOOLS_LDFLAGS -lltdl -o $TMP_UDIR/ofile || die "libtool/libtoolize not installed correctly"
+-         rm -rf ${TMP_UDIR}/libtool-*
+-     fi
+-     [ ! -d $_AUTOTOOLS_UDIR/share/aclocal ] || add_to_env "-I $_AUTOTOOLS_UDIR/share/aclocal" ACLOCAL_FLAGS
+- }
+- 
+  function inst_enchant() {
+      setup enchant
+      _ENCHANT_UDIR=`unix_path $ENCHANT_DIR`
+--- 349,359 ----
+              fi
+          qpopd
+          ${PKG_CONFIG} --exists aqbanking || die "AqBanking not installed correctly"
+!         # rm -rf ${TMP_UDIR}/aqbanking-*
+      fi
+      [ ! -d $_AQBANKING_UDIR/share/aclocal ] || add_to_env "-I $_AQBANKING_UDIR/share/aclocal" ACLOCAL_FLAGS
+  }
+  
+  function inst_enchant() {
+      setup enchant
+      _ENCHANT_UDIR=`unix_path $ENCHANT_DIR`
+***************
+*** 460,492 ****
+              make install
+          qpopd
+          quiet glade-3 --version || die "glade not installed correctly"
+!         rm -rf ${TMP_UDIR}/glade3-*
+!     fi
+! }
+! 
+! function inst_gmp() {
+!     setup Gmp
+!     _GMP_UDIR=`unix_path ${GMP_DIR}`
+!     add_to_env -I$_GMP_UDIR/include GMP_CPPFLAGS
+!     add_to_env -L$_GMP_UDIR/lib GMP_LDFLAGS
+!     add_to_env ${_GMP_UDIR}/bin PATH
+!     if quiet ${LD} $GMP_LDFLAGS -lgmp -o $TMP_UDIR/ofile
+!     then
+!         echo "Gmp already installed in ${_GMP_UDIR}. skipping."
+!     else
+!         wget_unpacked $GMP_URL $DOWNLOAD_DIR $TMP_DIR
+!         assert_one_dir $TMP_UDIR/gmp-*
+!         qpushd $TMP_UDIR/gmp-*
+!             ./configure ${HOST_XCOMPILE} \
+!                 ABI=$GMP_ABI \
+!                 --prefix=${_GMP_UDIR} \
+!                 --disable-static --enable-shared 
+!             make
+! #            [ "$CROSS_COMPILE" != "yes" ] && make check
+!             make install
+!         qpopd
+!         quiet ${LD} $GMP_LDFLAGS -lgmp -o $TMP_UDIR/ofile || die "Gmp not installed correctly"
+!         rm -rf ${TMP_UDIR}/gmp-*
+      fi
+  }
+  
+--- 386,392 ----
+              make install
+          qpopd
+          quiet glade-3 --version || die "glade not installed correctly"
+!     #    rm -rf ${TMP_UDIR}/glade3-*
+      fi
+  }
+  
+***************
+*** 497,507 ****
+      add_to_env -L$_GNOME_UDIR/lib GNOME_LDFLAGS
+      add_to_env $_GNOME_UDIR/bin PATH
+      add_to_env $_GNOME_UDIR/lib/pkgconfig PKG_CONFIG_PATH
+!     if [ "$CROSS_COMPILE" != "yes" ]; then
+!         add_to_env $_GNOME_UDIR/bin/pkg-config-msys.sh PKG_CONFIG
+!     else
+!         add_to_env pkg-config PKG_CONFIG
+!     fi
+      if quiet ${PKG_CONFIG} --atleast-version=${GTK_VERSION} gtk+-2.0 &&
+          quiet ${PKG_CONFIG} --atleast-version=${CAIRO_VERSION} cairo &&
+          quiet ${PKG_CONFIG} --exact-version=${LIBXML2_VERSION} libxml-2.0 &&
+--- 397,403 ----
+      add_to_env -L$_GNOME_UDIR/lib GNOME_LDFLAGS
+      add_to_env $_GNOME_UDIR/bin PATH
+      add_to_env $_GNOME_UDIR/lib/pkgconfig PKG_CONFIG_PATH
+!     add_to_env pkg-config PKG_CONFIG
+      if quiet ${PKG_CONFIG} --atleast-version=${GTK_VERSION} gtk+-2.0 &&
+          quiet ${PKG_CONFIG} --atleast-version=${CAIRO_VERSION} cairo &&
+          quiet ${PKG_CONFIG} --exact-version=${LIBXML2_VERSION} libxml-2.0 &&
+***************
+*** 524,532 ****
+          wget_unpacked $GAIL_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $GDK_PIXBUF_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $GDK_PIXBUF_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+-         wget_unpacked $GETTEXT_RUNTIME_URL $DOWNLOAD_DIR $GNOME_DIR
+-         wget_unpacked $GETTEXT_RUNTIME_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+-         wget_unpacked $GETTEXT_TOOLS_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $GLIB_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $GLIB_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $GTK_URL $DOWNLOAD_DIR $GNOME_DIR
+--- 420,425 ----
+***************
+*** 536,550 ****
+          wget_unpacked $LIBART_LGPL_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBGNOMECANVAS_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBGNOMECANVAS_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+-         wget_unpacked $LIBICONV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBJPEG_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBJPEG_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBPNG_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBPNG_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBTIFF_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $LIBTIFF_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+- #        wget_unpacked $LIBXML2_URL $DOWNLOAD_DIR $GNOME_DIR
+- #        wget_unpacked $LIBXML2_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $PANGO_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $PANGO_DEV_URL $DOWNLOAD_DIR $GNOME_DIR
+          wget_unpacked $PKG_CONFIG_URL $DOWNLOAD_DIR $GNOME_DIR
+--- 429,440 ----
+***************
+*** 565,590 ****
+          rm -rf $TMP_UDIR/gtk2_prefs-*
+  
+          wget_unpacked $GTK_DOC_URL $DOWNLOAD_DIR $TMP_DIR
+          qpushd $_GNOME_UDIR
+-             assert_one_dir $TMP_UDIR/gtk-doc-*
+-             mv $TMP_UDIR/gtk-doc-*/gtk-doc.m4 $_GNOME_UDIR/share/aclocal
+              for file in bin/intltool-*; do
+!                 sed '1s,!.*perl,!'"$INTLTOOL_PERL"',;s,/opt/gnu/bin/iconv,iconv,' $file > tmp
+                  mv tmp $file
+              done
+-             # work around a bug in msys bash, adding 0x01 smilies
+-             cat > bin/pkg-config-msys.sh <<EOF
+- #!/bin/sh
+- PKG_CONFIG="\$(dirname \$0)/pkg-config"
+- if \${PKG_CONFIG} "\$@" > /dev/null 2>&1 ; then
+-     res=true
+- else
+-     res=false
+- fi
+- \${PKG_CONFIG} "\$@" | tr -d \\\\r && \$res
+- EOF
+-             chmod +x bin/pkg-config{.exe,-msys.sh}
+-             rm -rf $TMP_UDIR/gtk-doc-*
+          qpopd
+  
+          if quiet ${PKG_CONFIG} --exact-version=${LIBXML2_VERSION} libxml-2.0 ; then
+--- 455,470 ----
+          rm -rf $TMP_UDIR/gtk2_prefs-*
+  
+          wget_unpacked $GTK_DOC_URL $DOWNLOAD_DIR $TMP_DIR
++         assert_one_dir $TMP_UDIR/gtk-doc-*
++         mv $TMP_UDIR/gtk-doc-*/gtk-doc.m4 $_GNOME_UDIR/share/aclocal
++         rm -rf $TMP_UDIR/gtk-doc-*
++ 
++         # Fix paths to tools used by gnome provided intltool scripts
+          qpushd $_GNOME_UDIR
+              for file in bin/intltool-*; do
+!                 sed '1s,!.*perl,!'"perl"',;s,/opt/gnu/bin/iconv,iconv,' $file > tmp
+                  mv tmp $file
+              done
+          qpopd
+  
+          if quiet ${PKG_CONFIG} --exact-version=${LIBXML2_VERSION} libxml-2.0 ; then
+***************
+*** 602,608 ****
+                  make
+                  make install
+              qpopd
+!             rm -rf ${TMP_UDIR}/libxml2-*
+          fi
+  
+          qpushd $_GNOME_UDIR/lib/pkgconfig
+--- 482,488 ----
+                  make
+                  make install
+              qpopd
+!     #        rm -rf ${TMP_UDIR}/libxml2-*
+          fi
+  
+          qpushd $_GNOME_UDIR/lib/pkgconfig
+***************
+*** 661,672 ****
+              [ -d ../libgsf-* ] || die "We need the unpacked package $TMP_UDIR/libgsf-*; please unpack it in $TMP_UDIR"
+              [ -f dumpdef.pl ] || cp -p ../libgsf-*/dumpdef.pl .
+              make
+!             rm -rf ${_GOFFICE_UDIR}
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists libgoffice-0.8 && [ -f $_GOFFICE_UDIR/bin/libgoffice*.dll ] || die "goffice not installed correctly"
+!         rm -rf ${TMP_UDIR}/goffice-*
+!         rm -rf ${TMP_UDIR}/libgsf-*
+      fi
+  }
+  
+--- 541,552 ----
+              [ -d ../libgsf-* ] || die "We need the unpacked package $TMP_UDIR/libgsf-*; please unpack it in $TMP_UDIR"
+              [ -f dumpdef.pl ] || cp -p ../libgsf-*/dumpdef.pl .
+              make
+!             # rm -rf ${_GOFFICE_UDIR}
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists libgoffice-0.8 && [ -f $_GOFFICE_UDIR/bin/libgoffice*.dll ] || die "goffice not installed correctly"
+!         # rm -rf ${TMP_UDIR}/goffice-*
+!         # rm -rf ${TMP_UDIR}/libgsf-*
+      fi
+  }
+  
+***************
+*** 689,710 ****
+          tar -xzpf $_GUILE_BALL -C $TMP_UDIR
+          assert_one_dir $TMP_UDIR/guile-*
+          qpushd $TMP_UDIR/guile-*
+!             if [ -n "$GUILE_PATCH" -a -f "$GUILE_PATCH" ]; then
+!                 patch -p1 < $GUILE_PATCH
+!             fi
+!             ACLOCAL="aclocal $ACLOCAL_FLAGS" autoreconf -fvi $ACLOCAL_FLAGS
+!             ./configure ${HOST_XCOMPILE} \
+!                 --disable-static \
+                  --disable-elisp \
+                  --disable-dependency-tracking \
+!                 -C --prefix=$_GUILE_WFSDIR \
+!                 ac_cv_func_regcomp_rx=yes \
+!                 CFLAGS="-D__MINGW32__" \
+!                 CPPFLAGS="${READLINE_CPPFLAGS} ${REGEX_CPPFLAGS} ${AUTOTOOLS_CPPFLAGS} ${GMP_CPPFLAGS} -D__MINGW32__" \
+!                 LDFLAGS="${READLINE_LDFLAGS} ${REGEX_LDFLAGS} ${AUTOTOOLS_LDFLAGS} ${GMP_LDFLAGS} -Wl,--enable-auto-import"
+!             make LDFLAGS="${READLINE_LDFLAGS} ${REGEX_LDFLAGS} ${AUTOTOOLS_LDFLAGS} ${GMP_LDFLAGS} -Wl,--enable-auto-import -no-undefined -avoid-version"
+              make install
+          qpopd
+          guile -c '(use-modules (srfi srfi-39))' || die "guile not installed correctly"
+  
+          # If this libguile is used from MSVC compiler, we must
+--- 569,596 ----
+          tar -xzpf $_GUILE_BALL -C $TMP_UDIR
+          assert_one_dir $TMP_UDIR/guile-*
+          qpushd $TMP_UDIR/guile-*
+!             autoreconf -fvi
+!             ./configure ${HOST_XCOMPILE} -C \
+                  --disable-elisp \
++                 --disable-error-on-warning \
+                  --disable-dependency-tracking \
+!                 --prefix=$_GUILE_WFSDIR \
+!                 ac_cv_func_strncasecmp=yes \
+!                 CPPFLAGS="${READLINE_CPPFLAGS} ${REGEX_CPPFLAGS}" \
+!                 LDFLAGS="${READLINE_LDFLAGS} ${REGEX_LDFLAGS} -Wl,--enable-auto-import"
+! 	    ## ac_cv_func_strncasecmp above is to fix bug in configure of guile
+!             make
+              make install
+          qpopd
++ # fix up guile dll naming problem
++ 	( cd $GUILE_DIR/bin
++ 
++ 		cp libguilereadline-v-17-17.dll libguilereadline-v-17.dll
++ 		cp libguile-srfi-srfi-13-14-v-3-3.dll libguile-srfi-srfi-13-14-v-3.dll
++ 		cp libguile-srfi-srfi-1-v-3-3.dll libguile-srfi-srfi-1-v-3.dll
++ 		cp libguile-srfi-srfi-4-v-3-3.dll libguile-srfi-srfi-4-v-3.dll 
++ 		cp libguile-srfi-srfi-60-v-2-2.dll libguile-srfi-srfi-60-v-2.dll
++         )
+          guile -c '(use-modules (srfi srfi-39))' || die "guile not installed correctly"
+  
+          # If this libguile is used from MSVC compiler, we must
+***************
+*** 738,744 ****
+  extern LIBGUILEDECL struct scm_t_freelist scm_master_freelist2;
+  extern LIBGUILEDECL int scm_block_gc;
+  EOF
+!         rm -rf ${TMP_UDIR}/guile-*
+      fi
+      if [ "$CROSS_COMPILE" = "yes" ]; then
+          mkdir -p $_GUILE_UDIR/bin
+--- 624,630 ----
+  extern LIBGUILEDECL struct scm_t_freelist scm_master_freelist2;
+  extern LIBGUILEDECL int scm_block_gc;
+  EOF
+!     #    rm -rf ${TMP_UDIR}/guile-*
+      fi
+      if [ "$CROSS_COMPILE" = "yes" ]; then
+          mkdir -p $_GUILE_UDIR/bin
+***************
+*** 757,763 ****
+      _GWENHYWFAR_UDIR=`unix_path ${GWENHYWFAR_DIR}`
+      add_to_env ${_GWENHYWFAR_UDIR}/bin PATH
+      add_to_env ${_GWENHYWFAR_UDIR}/lib/pkgconfig PKG_CONFIG_PATH
+!     if quiet ${PKG_CONFIG} --exact-version=${GWENHYWFAR_VERSION} gwenhywfar
+      then
+          echo "Gwenhywfar already installed in $_GWENHYWFAR_UDIR. skipping."
+      else
+--- 643,650 ----
+      _GWENHYWFAR_UDIR=`unix_path ${GWENHYWFAR_DIR}`
+      add_to_env ${_GWENHYWFAR_UDIR}/bin PATH
+      add_to_env ${_GWENHYWFAR_UDIR}/lib/pkgconfig PKG_CONFIG_PATH
+!     # if quiet ${PKG_CONFIG} --exact-version=${GWENHYWFAR_VERSION} gwenhywfar
+!     if quiet ${PKG_CONFIG} gwenhywfar
+      then
+          echo "Gwenhywfar already installed in $_GWENHYWFAR_UDIR. skipping."
+      else
+***************
+*** 766,771 ****
+--- 653,661 ----
+          qpushd $TMP_UDIR/gwenhywfar-*
+              # circumvent binreloc bug, http://trac.autopackage.org/ticket/28
+              if [ "$AQBANKING5" = "yes" ]; then
++                 if [ -n "$GWENHYWFAR_PATCH" -a -f "$GWENHYWFAR_PATCH" ] ; then
++                     patch -p1 < $GWENHYWFAR_PATCH
++                 fi
+                  # Note: gwenhywfar-3.x and higher don't use openssl anymore.
+                  ./configure ${HOST_XCOMPILE} \
+                      --with-libgcrypt-prefix=$_GNUTLS_UDIR \
+***************
+*** 793,803 ****
+              fi
+              make
+  #            [ "$CROSS_COMPILE" != "yes" ] && make check
+!             rm -rf ${_GWENHYWFAR_UDIR}
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists gwenhywfar || die "Gwenhywfar not installed correctly"
+!         rm -rf ${TMP_UDIR}/gwenhywfar-*
+      fi
+      [ ! -d $_GWENHYWFAR_UDIR/share/aclocal ] || add_to_env "-I $_GWENHYWFAR_UDIR/share/aclocal" ACLOCAL_FLAGS
+  }
+--- 683,693 ----
+              fi
+              make
+  #            [ "$CROSS_COMPILE" != "yes" ] && make check
+!             # rm -rf ${_GWENHYWFAR_UDIR}
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists gwenhywfar || die "Gwenhywfar not installed correctly"
+!         # rm -rf ${TMP_UDIR}/gwenhywfar-*
+      fi
+      [ ! -d $_GWENHYWFAR_UDIR/share/aclocal ] || add_to_env "-I $_GWENHYWFAR_UDIR/share/aclocal" ACLOCAL_FLAGS
+  }
+***************
+*** 819,825 ****
+              make install
+          qpopd
+          quiet [ -f ${_ISOCODES_UDIR}/share/pkgconfig/iso-codes.pc ] || die "isocodes not installed correctly"
+!         rm -rf ${TMP_UDIR}/iso-codes-*
+      fi
+  }
+  
+--- 709,715 ----
+              make install
+          qpopd
+          quiet [ -f ${_ISOCODES_UDIR}/share/pkgconfig/iso-codes.pc ] || die "isocodes not installed correctly"
+!         # rm -rf ${TMP_UDIR}/iso-codes-*
+      fi
+  }
+  
+***************
+*** 846,852 ****
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists ktoblzcheck || die "Ktoblzcheck not installed correctly"
+!         rm -rf ${TMP_UDIR}/ktoblzcheck-*
+      fi
+  }
+  
+--- 736,742 ----
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists ktoblzcheck || die "Ktoblzcheck not installed correctly"
+!         # rm -rf ${TMP_UDIR}/ktoblzcheck-*
+      fi
+  }
+  
+***************
+*** 868,880 ****
+          wget_unpacked $SQLITE3_URL $DOWNLOAD_DIR $TMP_DIR
+          assert_one_dir $TMP_UDIR/sqlite-*
+          qpushd $TMP_UDIR/sqlite-*
+              ./configure ${HOST_XCOMPILE} \
+                  --prefix=${_SQLITE3_UDIR}
+              make
+              make install
+          qpopd
+          test -f ${_SQLITE3_UDIR}/bin/libsqlite3-0.dll || die "SQLite3 not installed correctly"
+!         rm -rf ${TMP_UDIR}/sqlite-*
+      fi
+      if test -f ${_MYSQL_LIB_UDIR}/lib/libmysql.dll -a \
+  	        -f ${_MYSQL_LIB_UDIR}/lib/libmysqlclient.a
+--- 758,771 ----
+          wget_unpacked $SQLITE3_URL $DOWNLOAD_DIR $TMP_DIR
+          assert_one_dir $TMP_UDIR/sqlite-*
+          qpushd $TMP_UDIR/sqlite-*
++             autoreconf -if
+              ./configure ${HOST_XCOMPILE} \
+                  --prefix=${_SQLITE3_UDIR}
+              make
+              make install
+          qpopd
+          test -f ${_SQLITE3_UDIR}/bin/libsqlite3-0.dll || die "SQLite3 not installed correctly"
+!         # rm -rf ${TMP_UDIR}/sqlite-*
+      fi
+      if test -f ${_MYSQL_LIB_UDIR}/lib/libmysql.dll -a \
+  	        -f ${_MYSQL_LIB_UDIR}/lib/libmysqlclient.a
+***************
+*** 886,892 ****
+          assert_one_dir $TMP_UDIR/mysql*
+          cp -r $TMP_UDIR/mysql*/* $_MYSQL_LIB_UDIR
+          cp -r $TMP_UDIR/mysql*/include $_MYSQL_LIB_UDIR/include/mysql
+!         rm -rf ${TMP_UDIR}/mysql*
+          qpushd $_MYSQL_LIB_UDIR/lib
+          ${DLLTOOL} --input-def $LIBMYSQL_DEF --dllname libmysql.dll --output-lib libmysqlclient.a -k
+          test -f ${_MYSQL_LIB_UDIR}/lib/libmysql.dll || die "mysql not installed correctly - libmysql.dll"
+--- 777,783 ----
+          assert_one_dir $TMP_UDIR/mysql*
+          cp -r $TMP_UDIR/mysql*/* $_MYSQL_LIB_UDIR
+          cp -r $TMP_UDIR/mysql*/include $_MYSQL_LIB_UDIR/include/mysql
+!         # rm -rf ${TMP_UDIR}/mysql*
+          qpushd $_MYSQL_LIB_UDIR/lib
+          ${DLLTOOL} --input-def $LIBMYSQL_DEF --dllname libmysql.dll --output-lib libmysqlclient.a -k
+          test -f ${_MYSQL_LIB_UDIR}/lib/libmysql.dll || die "mysql not installed correctly - libmysql.dll"
+***************
+*** 899,908 ****
+      else
+          wget_unpacked $PGSQL_LIB_URL $DOWNLOAD_DIR $TMP_DIR
+          cp -r $TMP_UDIR/pgsql* $_PGSQL_UDIR
+!         rm -rf ${TMP_UDIR}/pgsql*
+          test -f ${_PGSQL_UDIR}/lib/libpq.dll || die "libpq not installed correctly"
+      fi
+!     if test -f ${_LIBDBI_UDIR}/bin/libdbi-0.dll
+      then
+          echo "libdbi already installed in $_LIBDBI_UDIR.  skipping."
+      else
+--- 790,799 ----
+      else
+          wget_unpacked $PGSQL_LIB_URL $DOWNLOAD_DIR $TMP_DIR
+          cp -r $TMP_UDIR/pgsql* $_PGSQL_UDIR
+!         # rm -rf ${TMP_UDIR}/pgsql*
+          test -f ${_PGSQL_UDIR}/lib/libpq.dll || die "libpq not installed correctly"
+      fi
+!     if test -f ${_LIBDBI_UDIR}/bin/libdbi-1.dll
+      then
+          echo "libdbi already installed in $_LIBDBI_UDIR.  skipping."
+      else
+***************
+*** 910,925 ****
+          assert_one_dir $TMP_UDIR/libdbi-0*
+          qpushd $TMP_UDIR/libdbi-0*
+              if [ -n "$LIBDBI_PATCH" -a -f "$LIBDBI_PATCH" ]; then
+!                 patch -p1 < $LIBDBI_PATCH
+!                 ./autogen.sh
+!             fi
+!             if [ -n "$LIBDBI_PATCH2" -a -f "$LIBDBI_PATCH2" ]; then
+!                 patch -p1 < $LIBDBI_PATCH2
+              fi
+              if [ "$CROSS_COMPILE" = "yes" ]; then
+                  rm ltmain.sh aclocal.m4
+                  libtoolize --force
+!                 aclocal -I ${_AUTOTOOLS_UDIR}/share/aclocal
+                  autoheader
+                  automake --add-missing
+                  autoconf
+--- 801,812 ----
+          assert_one_dir $TMP_UDIR/libdbi-0*
+          qpushd $TMP_UDIR/libdbi-0*
+              if [ -n "$LIBDBI_PATCH" -a -f "$LIBDBI_PATCH" ]; then
+!                 patch -l -p1 < $LIBDBI_PATCH
+              fi
+              if [ "$CROSS_COMPILE" = "yes" ]; then
+                  rm ltmain.sh aclocal.m4
+                  libtoolize --force
+!                 aclocal
+                  autoheader
+                  automake --add-missing
+                  autoconf
+***************
+*** 933,944 ****
+          qpushd ${_LIBDBI_UDIR}
+          if [ x"$(which pexports.exe > /dev/null 2>&1)" != x ]
+          then
+!             pexports bin/libdbi-0.dll > lib/libdbi.def
+!             ${DLLTOOL} -d lib/libdbi.def -D bin/libdbi-0.dll -l lib/libdbi.lib
+          fi
+          qpopd
+!         test -f ${_LIBDBI_UDIR}/bin/libdbi-0.dll || die "libdbi not installed correctly"
+!         rm -rf ${TMP_UDIR}/libdbi-0*
+      fi
+      if test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdsqlite3.dll -a \
+              -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdmysql.dll -a \
+--- 820,831 ----
+          qpushd ${_LIBDBI_UDIR}
+          if [ x"$(which pexports.exe > /dev/null 2>&1)" != x ]
+          then
+!             pexports bin/libdbi-1.dll > lib/libdbi.def
+!             ${DLLTOOL} -d lib/libdbi.def -D bin/libdbi-1.dll -l lib/libdbi.lib
+          fi
+          qpopd
+!         test -f ${_LIBDBI_UDIR}/bin/libdbi-1.dll || die "libdbi not installed correctly"
+!         # rm -rf ${TMP_UDIR}/libdbi-0*
+      fi
+      if test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdsqlite3.dll -a \
+              -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdmysql.dll -a \
+***************
+*** 950,963 ****
+          assert_one_dir $TMP_UDIR/libdbi-drivers-*
+          qpushd $TMP_UDIR/libdbi-drivers*
+              [ -n "$LIBDBI_DRIVERS_PATCH" -a -f "$LIBDBI_DRIVERS_PATCH" ] && \
+!                 patch -p0 < $LIBDBI_DRIVERS_PATCH
+!             [ -n "$LIBDBI_DRIVERS_PATCH2" -a -f "$LIBDBI_DRIVERS_PATCH2" ] && \
+!                 patch -p0 < $LIBDBI_DRIVERS_PATCH2
+!             [ -n "$LIBDBI_DRIVERS_PATCH3" -a -f "$LIBDBI_DRIVERS_PATCH3" ] && \
+!                 patch -p0 < $LIBDBI_DRIVERS_PATCH3
+!             [ -n "$LIBDBI_DRIVERS_PATCH4" -a -f "$LIBDBI_DRIVERS_PATCH4" ] && \
+!                 patch -p0 < $LIBDBI_DRIVERS_PATCH4
+!             LDFLAGS=-no-undefined ./configure ${HOST_XCOMPILE} \
+                  --disable-docs \
+                  --with-dbi-incdir=${_LIBDBI_UDIR}/include \
+                  --with-dbi-libdir=${_LIBDBI_UDIR}/lib \
+--- 837,844 ----
+          assert_one_dir $TMP_UDIR/libdbi-drivers-*
+          qpushd $TMP_UDIR/libdbi-drivers*
+              [ -n "$LIBDBI_DRIVERS_PATCH" -a -f "$LIBDBI_DRIVERS_PATCH" ] && \
+!                 patch -l -p1 < $LIBDBI_DRIVERS_PATCH
+!             ./configure ${HOST_XCOMPILE} \
+                  --disable-docs \
+                  --with-dbi-incdir=${_LIBDBI_UDIR}/include \
+                  --with-dbi-libdir=${_LIBDBI_UDIR}/lib \
+***************
+*** 968,980 ****
+                  --with-pgsql \
+                  --with-pgsql-dir=${_PGSQL_UDIR} \
+                  --prefix=${_LIBDBI_DRIVERS_UDIR}
+!             make
+              make install
+          qpopd
+          test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdsqlite3.dll || die "libdbi sqlite3 driver not installed correctly"
+          test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdmysql.dll || die "libdbi mysql driver not installed correctly"
+          test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdpgsql.dll || die "libdbi pgsql driver not installed correctly"
+!         rm -rf ${TMP_UDIR}/libdbi-drivers-*
+      fi
+  }
+  
+--- 849,861 ----
+                  --with-pgsql \
+                  --with-pgsql-dir=${_PGSQL_UDIR} \
+                  --prefix=${_LIBDBI_DRIVERS_UDIR}
+!             make LDFLAGS="$LDFLAGS -no-undefined"
+              make install
+          qpopd
+          test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdsqlite3.dll || die "libdbi sqlite3 driver not installed correctly"
+          test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdmysql.dll || die "libdbi mysql driver not installed correctly"
+          test -f ${_LIBDBI_DRIVERS_UDIR}/lib/dbd/libdbdpgsql.dll || die "libdbi pgsql driver not installed correctly"
+!         # rm -rf ${TMP_UDIR}/libdbi-drivers-*
+      fi
+  }
+  
+***************
+*** 988,994 ****
+      then
+          echo "libgsf already installed in $_LIBGSF_UDIR.  skipping."
+      else
+!         rm -rf ${TMP_UDIR}/libgsf-*
+          wget_unpacked $LIBGSF_URL $DOWNLOAD_DIR $TMP_DIR
+          assert_one_dir $TMP_UDIR/libgsf-*
+          qpushd $TMP_UDIR/libgsf-*
+--- 869,875 ----
+      then
+          echo "libgsf already installed in $_LIBGSF_UDIR.  skipping."
+      else
+!         # rm -rf ${TMP_UDIR}/libgsf-*
+          wget_unpacked $LIBGSF_URL $DOWNLOAD_DIR $TMP_DIR
+          assert_one_dir $TMP_UDIR/libgsf-*
+          qpushd $TMP_UDIR/libgsf-*
+***************
+*** 999,1005 ****
+                  CPPFLAGS="${GNOME_CPPFLAGS}" \
+                  LDFLAGS="${GNOME_LDFLAGS}"
+              make
+!             rm -rf ${_LIBGSF_UDIR}
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists libgsf-1 || die "libgsf not installed correctly: No libgsf-1"
+--- 880,886 ----
+                  CPPFLAGS="${GNOME_CPPFLAGS}" \
+                  LDFLAGS="${GNOME_LDFLAGS}"
+              make
+!             # rm -rf ${_LIBGSF_UDIR}
+              make install
+          qpopd
+          ${PKG_CONFIG} --exists libgsf-1 || die "libgsf not installed correctly: No libgsf-1"
+***************
+*** 1025,1031 ****
+  #                aclocal ${ACLOCAL_FLAGS}
+  #                automake
+  #                autoconf
+! #                ACLOCAL="aclocal $ACLOCAL_FLAGS" autoreconf -fvi $ACLOCAL_FLAGS -B $_AUTOTOOLS_UDIR/share/autoconf/autoconf
+              fi
+              ./configure ${HOST_XCOMPILE} \
+                  --prefix=${_LIBOFX_UDIR} \
+--- 906,912 ----
+  #                aclocal ${ACLOCAL_FLAGS}
+  #                automake
+  #                autoconf
+! #                ACLOCAL="aclocal $ACLOCAL_FLAGS" autoreconf -fvi $ACLOCAL_FLAGS
+              fi
+              ./configure ${HOST_XCOMPILE} \
+                  --prefix=${_LIBOFX_UDIR} \
+***************
+*** 1038,1044 ****
+              make install
+          qpopd
+          quiet ${PKG_CONFIG} --exists libofx || die "Libofx not installed correctly"
+!         rm -rf ${TMP_UDIR}/libofx-*
+      fi
+  }
+  
+--- 919,925 ----
+              make install
+          qpopd
+          quiet ${PKG_CONFIG} --exists libofx || die "Libofx not installed correctly"
+!         # rm -rf ${TMP_UDIR}/libofx-*
+      fi
+  }
+  
+***************
+*** 1064,1070 ****
+              make install
+          qpopd
+          quiet ${PKG_CONFIG} --exists libsoup-2.4 || die "libsoup not installed correctly"
+!         rm -rf ${TMP_UDIR}/libsoup-*
+      fi
+      LIBSOUP_CPPFLAGS=`${PKG_CONFIG} --cflags libsoup-2.4`
+  }
+--- 945,951 ----
+              make install
+          qpopd
+          quiet ${PKG_CONFIG} --exists libsoup-2.4 || die "libsoup not installed correctly"
+!         # rm -rf ${TMP_UDIR}/libsoup-*
+      fi
+      LIBSOUP_CPPFLAGS=`${PKG_CONFIG} --cflags libsoup-2.4`
+  }
+***************
+*** 1098,1104 ****
+              make
+              make install
+          qpopd
+!         rm -rf ${TMP_UDIR}/libxslt-*
+  
+          quiet which xsltproc || die "libxslt not installed correctly"
+      fi
+--- 979,985 ----
+              make
+              make install
+          qpopd
+!         # rm -rf ${TMP_UDIR}/libxslt-*
+  
+          quiet which xsltproc || die "libxslt not installed correctly"
+      fi
+***************
+*** 1132,1138 ****
+              make -i install
+          qpopd
+          test -f ${_OPENSP_UDIR}/bin/libosp-5.dll || die "OpenSP not installed correctly"
+! 	rm -rf $TMP_UDIR/OpenSP-*
+      fi
+  }
+  
+--- 1013,1019 ----
+              make -i install
+          qpopd
+          test -f ${_OPENSP_UDIR}/bin/libosp-5.dll || die "OpenSP not installed correctly"
+! 	# rm -rf $TMP_UDIR/OpenSP-*
+      fi
+  }
+  
+***************
+*** 1177,1183 ****
+              cp -a include/openssl $_OPENSSL_UDIR/include
+          qpopd
+          quiet ${LD} -L$_OPENSSL_UDIR/lib -leay32 -lssl32 -o $TMP_UDIR/ofile || die "openssl not installed correctly"
+!         rm -rf ${TMP_UDIR}/openssl-*
+      fi
+      _eay32dll=$(echo $(which libeay32.dll))  # which sucks
+      if [ -z "$_eay32dll" ] ; then
+--- 1058,1064 ----
+              cp -a include/openssl $_OPENSSL_UDIR/include
+          qpopd
+          quiet ${LD} -L$_OPENSSL_UDIR/lib -leay32 -lssl32 -o $TMP_UDIR/ofile || die "openssl not installed correctly"
+!         # rm -rf ${TMP_UDIR}/openssl-*
+      fi
+      _eay32dll=$(echo $(which libeay32.dll))  # which sucks
+      if [ -z "$_eay32dll" ] ; then
+***************
+*** 1312,1318 ****
+              wget_unpacked $WEBKIT_URL $DOWNLOAD_DIR $WEBKIT_DIR
+  	fi
+          quiet ${PKG_CONFIG} --exists webkit-1.0 || die "webkit not installed correctly"
+! 	rm -rf ${TMP_UDIR}/webkit-*
+  
+          qpushd $_WEBKIT_UDIR/lib/pkgconfig
+              perl -pi.bak -e"s!^prefix=.*\$!prefix=$_WEBKIT_UDIR!" *.pc
+--- 1193,1199 ----
+              wget_unpacked $WEBKIT_URL $DOWNLOAD_DIR $WEBKIT_DIR
+  	fi
+          quiet ${PKG_CONFIG} --exists webkit-1.0 || die "webkit not installed correctly"
+! 	# rm -rf ${TMP_UDIR}/webkit-*
+  
+          qpushd $_WEBKIT_UDIR/lib/pkgconfig
+              perl -pi.bak -e"s!^prefix=.*\$!prefix=$_WEBKIT_UDIR!" *.pc
+***************
+*** 1415,1421 ****
+  
+      AQBANKING_OPTIONS="--enable-aqbanking"
+      AQBANKING_UPATH="${_OPENSSL_UDIR}/bin:${_GWENHYWFAR_UDIR}/bin:${_AQBANKING_UDIR}/bin"
+!     LIBOFX_OPTIONS="--enable-ofx --with-ofx-prefix=${_LIBOFX_UDIR}"
+  
+      if [ "$BUILD_FROM_TARBALL" != "yes" ]; then
+          qpushd $REPOS_DIR
+--- 1296,1303 ----
+  
+      AQBANKING_OPTIONS="--enable-aqbanking"
+      AQBANKING_UPATH="${_OPENSSL_UDIR}/bin:${_GWENHYWFAR_UDIR}/bin:${_AQBANKING_UDIR}/bin"
+!     #LIBOFX_OPTIONS="--enable-ofx --with-ofx-prefix=${_LIBOFX_UDIR}"
+!     LIBOFX_OPTIONS="--enable-ofx "
+  
+      if [ "$BUILD_FROM_TARBALL" != "yes" ]; then
+          qpushd $REPOS_DIR
+***************
+*** 1434,1445 ****
+              ${AQBANKING_OPTIONS} \
+              --enable-binreloc \
+              --enable-locale-specific-tax \
+!             CPPFLAGS="${AUTOTOOLS_CPPFLAGS} ${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GMP_CPPFLAGS} ${GUILE_CPPFLAGS} ${LIBDBI_CPPFLAGS} ${KTOBLZCHECK_CPPFLAGS} ${HH_CPPFLAGS} ${LIBSOUP_CPPFLAGS} -D_WIN32 ${EXTRA_CFLAGS}" \
+!             LDFLAGS="${AUTOTOOLS_LDFLAGS} ${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GMP_LDFLAGS} ${GUILE_LDFLAGS} ${LIBDBI_LDFLAGS} ${KTOBLZCHECK_LDFLAGS} ${HH_LDFLAGS} -L${_SQLITE3_UDIR}/lib -L${_ENCHANT_UDIR}/lib -L${_LIBXSLT_UDIR}/lib -L${_MINGW_UDIR}/lib" \
+              PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
+  
+          make
+- 
+          make_install
+      qpopd
+  }
+--- 1316,1326 ----
+              ${AQBANKING_OPTIONS} \
+              --enable-binreloc \
+              --enable-locale-specific-tax \
+!             CPPFLAGS="${REGEX_CPPFLAGS} ${GNOME_CPPFLAGS} ${GUILE_CPPFLAGS} ${LIBDBI_CPPFLAGS} ${KTOBLZCHECK_CPPFLAGS} ${HH_CPPFLAGS} ${LIBSOUP_CPPFLAGS} -D_WIN32 ${EXTRA_CFLAGS}" \
+!             LDFLAGS="${REGEX_LDFLAGS} ${GNOME_LDFLAGS} ${GUILE_LDFLAGS} ${LIBDBI_LDFLAGS} ${KTOBLZCHECK_LDFLAGS} ${HH_LDFLAGS} -L${_SQLITE3_UDIR}/lib -L${_ENCHANT_UDIR}/lib -L${_LIBXSLT_UDIR}/lib -L${_MINGW_UDIR}/lib" \
+              PKG_CONFIG_PATH="${PKG_CONFIG_PATH}"
+  
+          make
+          make_install
+      qpopd
+  }
+***************
+*** 1456,1462 ****
+      _GNOME_UDIR=`unix_path $GNOME_DIR`
+      _GUILE_UDIR=`unix_path $GUILE_DIR`
+      _REGEX_UDIR=`unix_path $REGEX_DIR`
+-     _AUTOTOOLS_UDIR=`unix_path $AUTOTOOLS_DIR`
+      _OPENSSL_UDIR=`unix_path $OPENSSL_DIR`
+      _GWENHYWFAR_UDIR=`unix_path ${GWENHYWFAR_DIR}`
+      _AQBANKING_UDIR=`unix_path ${AQBANKING_DIR}`
+--- 1337,1342 ----
+***************
+*** 1509,1518 ****
+  setlocal
+  set PATH=$INSTALL_DIR\\bin;%PATH%
+  set PATH=$INSTALL_DIR\\lib;%PATH%
+  set PATH=$INSTALL_DIR\\lib\\gnucash;%PATH%
+  set PATH=$GNUTLS_DIR\\bin;%PATH%
+  set PATH=$MINGW_DIR\\bin;%PATH%
+- set PATH=$GMP_DIR\\bin;%PATH%
+  set PATH=$GOFFICE_DIR\\bin;%PATH%
+  set PATH=$LIBGSF_DIR\\bin;%PATH%
+  set PATH=$PCRE_DIR\\bin;%PATH%
+--- 1389,1398 ----
+  setlocal
+  set PATH=$INSTALL_DIR\\bin;%PATH%
+  set PATH=$INSTALL_DIR\\lib;%PATH%
++ set PATH=$INSTALL_DIR\\lib\\bin;%PATH%
+  set PATH=$INSTALL_DIR\\lib\\gnucash;%PATH%
+  set PATH=$GNUTLS_DIR\\bin;%PATH%
+  set PATH=$MINGW_DIR\\bin;%PATH%
+  set PATH=$GOFFICE_DIR\\bin;%PATH%
+  set PATH=$LIBGSF_DIR\\bin;%PATH%
+  set PATH=$PCRE_DIR\\bin;%PATH%
+***************
+*** 1520,1526 ****
+  set PATH=$GUILE_DIR\\bin;%PATH%
+  set PATH=$WEBKIT_DIR\\bin;%PATH%
+  set PATH=$REGEX_DIR\\bin;%PATH%
+- set PATH=$AUTOTOOLS_DIR\\bin;%PATH%
+  set PATH=$AQBANKING_PATH;%PATH%
+  set PATH=$LIBOFX_DIR\\bin;%PATH%
+  set PATH=$OPENSP_DIR\\bin;%PATH%
+--- 1400,1405 ----
+***************
+*** 1529,1534 ****
+--- 1408,1419 ----
+  set PATH=$MYSQL_LIB_DIR\\lib;%PATH%
+  set PATH=$PGSQL_DIR\\bin;%PATH%
+  set PATH=$PGSQL_DIR\\lib;%PATH%
++ set PATH=$ENCHANT_DIR\\bin;%PATH%
++ set PATH=$ENCHANT_DIR\\lib;%PATH%
++ set PATH=$LIBSOUP_DIR\\bin;%PATH%
++ set PATH=$LIBSOUP_DIR\\lib;%PATH%
++ set PATH=$LIBXSLT_DIR\\bin;%PATH%
++ set PATH=$LIBXSLT_DIR\\lib;%PATH%
+  
+  set LTDL_LIBRARY_PATH=${INSTALL_DIR}\\lib
+  
